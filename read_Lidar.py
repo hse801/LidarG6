@@ -57,12 +57,25 @@ class LidarG6(rawProtocal):
         PH, CT, LSN, FSA, LSA, CS = struct.unpack('<HBBHHH', data[:10]) # '<'는 little endian
         #print('PH: ', PH, 'CT: ', CT, 'LSN: ', LSN, 'FSA: ', FSA, 'LSA: ', LSA, 'CS: ', CS)
         print(f'PH = {PH}, CT = {CT}, LSN = {LSN}, FSA = {FSA}, LSA = {LSA}, CS = {CS}') #fstring
+        sampling_data = []
+        for i in range(11, len(data), 2):
+            p = struct.unpack('<H', data[i:i + 2])
+            sampling_data.append(list(p))
+        print('Sampling Data = ', sampling_data)
         # print(len(data))
         # sampling_data = []
         # for i in range(11, len(data)):
         #     sampling_data.append(list(struct.unpack('<H', data[i])))
         #
         # print('Sampling Data = ', sampling_data)
+
+        # # sampling_data = []
+        # sampling_data = struct.unpack('<H', data[11:])
+        #
+        #
+        # # sampling_data, = struct.unpack('<H', data[11:])
+        # print('Sampling Data = ', sampling_data)
+
 
         return
 
