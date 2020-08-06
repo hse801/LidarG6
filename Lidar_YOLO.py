@@ -10,7 +10,6 @@ import math
 from YOLO import startyolo
 
 dist_i = 0
-dist_i2 = 0
 anglecheck = 0
 anglecheck2 = 0
 # dist_sum = 0
@@ -106,7 +105,7 @@ def read_Lidar():
             # distcheckdone = []
             #if Angle_i >200:
                 # Angle_i - 100 <= anglecheck + 149 <= Angle_i + 100
-            if (Angle_i - 16 <= anglecheck + 149 <= Angle_i + 16) and (164 <= Angle_i <= 204):
+            if (Angle_i - 16 <= anglecheck + 149 <= Angle_i + 16) and (134 <= Angle_i <= 234):
                 angcheckdone.append(Angle_i)
                 distcheckdone.append(dist_i)
             else:
@@ -115,7 +114,7 @@ def read_Lidar():
             print('Angle check = ', angcheckdone)
             print('Distance check = ', distcheckdone)
 
-            if (Angle_i - 16 <= anglecheck2 + 149 <= Angle_i + 16) and (164 <= Angle_i <= 204):
+            if (Angle_i - 16 <= anglecheck2 + 149 <= Angle_i + 16) and (134 <= Angle_i <= 234):
                 angcheckdone2.append(Angle_i)
                 distcheckdone2.append(dist_i)
             else:
@@ -126,7 +125,7 @@ def read_Lidar():
 
             if i == (LSN - 1) * 2:
                 nonzero_distcheckdone=[float(v) for v in distcheckdone if v > 0]
-                nonzero_distcheckdone2 = [float(v) for v in distcheckdone2 if v > 0]
+                nonzero_distcheckdone2 = [float(v2) for v2 in distcheckdone2 if v2 > 0]
 
                 #mean_dist = (dist_sum / len(distcheckdone))
             mean_dist = sum(nonzero_distcheckdone) / len(nonzero_distcheckdone)
