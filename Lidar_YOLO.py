@@ -114,14 +114,14 @@ def read_Lidar():
             print('Angle check = ', angcheckdone)
             print('Distance check = ', distcheckdone)
 
-            if (Angle_i - 16 <= anglecheck2 + 149 <= Angle_i + 16) and (134 <= Angle_i <= 234):
-                angcheckdone2.append(Angle_i)
-                distcheckdone2.append(dist_i)
-            else:
-                angcheckdone2.append(0)
-                distcheckdone2.append(0)
-            print('Angle check = ', angcheckdone2)
-            print('Distance check = ', distcheckdone2)
+            #if (Angle_i - 16 <= anglecheck2 + 149 <= Angle_i + 16) and (134 <= Angle_i <= 234):
+                #angcheckdone2.append(Angle_i)
+                #distcheckdone2.append(dist_i)
+            #else:
+                #angcheckdone2.append(0)
+                #distcheckdone2.append(0)
+            #print('Angle check = ', angcheckdone2)
+            #print('Distance check = ', distcheckdone2)
 
             if i == (LSN - 1) * 2:
                 nonzero_distcheckdone=[float(v) for v in distcheckdone if v > 0]
@@ -131,7 +131,7 @@ def read_Lidar():
             mean_dist = sum(nonzero_distcheckdone) / len(nonzero_distcheckdone)
             mean_dist2 = sum(nonzero_distcheckdone2) / len(nonzero_distcheckdone2)
             print('Distance Mean = ', mean_dist)
-            print('Distance Mean2 = ', mean_dist2)
+            #print('Distance Mean2 = ', mean_dist2)
 
             global num
             global num2
@@ -143,11 +143,11 @@ def read_Lidar():
             num_Mean += mean_dist
             num_Mean2 += mean_dist2
             print('num = ', num)
-            print('num2 = ', num2)
+            #print('num2 = ', num2)
             print('total_mean = ', num_Mean)
-            print('total_mean2 = ', num_Mean2)
+            #print('total_mean2 = ', num_Mean2)
             print('avg_mean =', num_Mean / num)
-            print('avg_mean2 =', num_Mean2 / num2)
+            #print('avg_mean2 =', num_Mean2 / num2)
                 #print(len(distcheckdone))
                 #print('LSN = ', LSN)
             # print('ddict = ', ddict)
