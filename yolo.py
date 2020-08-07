@@ -4,7 +4,7 @@ import time
 from math import atan
 
 
-def startyolo( ):
+def startyolo():
     cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
     cap.set(3, 1920)
     cap.set(4, 1080)
@@ -70,15 +70,6 @@ def startyolo( ):
                                 anglecheck = 35-atan(960-(x + w / 2) / 1371)
                             else:
                                 anglecheck = 35+atan((x + w / 2) / 1371)
-                        if label == "laptop":
-                            print("x2 = ",x)
-                            print("w2 = ",w)
-                            x1 = x
-                            w1 = w
-                            if (x1 + w1 / 2) <= 960:
-                                anglecheck2 = 35-atan(960-(x1 + w1 / 2) / 1371)
-                            else:
-                                anglecheck2 = 35+atan((x1 + w1 / 2) / 1371)
 
                 cv2.imshow("Image", img)
                 cv2.waitKey(0)

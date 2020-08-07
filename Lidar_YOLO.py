@@ -48,7 +48,7 @@ def read_Lidar():
             for i in range(0, 2 * LSN, 2):
                 cs = cs ^ _HexArrToDec((data[8 + i], data[8 + i + 1]))
 
-            if (cs == ocs):
+            if cs == ocs:
                 return True
             else:
                 return False
@@ -65,7 +65,7 @@ def read_Lidar():
         if dist == 0:
             return 0
         else:
-            return (atan(21.8 * ((155.3 - dist) / (155.3 * dist))) * (180 / pi))
+            return atan(21.8 * ((155.3 - dist) / (155.3 * dist))) * (180 / pi)
 
     def _Calculate(d):
         #global dist_sum
@@ -80,8 +80,6 @@ def read_Lidar():
             Angle_diff = Angle_lsa - Angle_fsa
         else:
             Angle_diff = 360 + Angle_lsa - Angle_fsa
-
-
 
         for i in range(0, 2 * LSN, 2):
             global dist_i
@@ -109,10 +107,8 @@ def read_Lidar():
 
             if i == (LSN - 1) * 2:
                 nonzero_distcheckdone = [float(v) for v in distcheckdone if v > 0]
-                nonzero_distcheckdone2 = [float(v2) for v2 in distcheckdone2 if v2 > 0]
 
             mean_dist = sum(nonzero_distcheckdone) / len(nonzero_distcheckdone)
-            mean_dist2 = sum(nonzero_distcheckdone2) / len(nonzero_distcheckdone2)
             print('Distance Mean = ', mean_dist)
 
             global num
@@ -123,7 +119,6 @@ def read_Lidar():
             num += 1
             num2 += 1
             num_Mean += mean_dist
-            num_Mean2 += mean_dist2
             print('num = ', num)
             print('total_mean = ', num_Mean)
             print('avg_mean =', num_Mean / num)
@@ -146,11 +141,11 @@ def read_Lidar():
         for i, e in enumerate(data2):
             try:
                 if e[0] == 0:
-                    if (_CheckSum(e)):
+                    if _CheckSum(e):
                         d = _Calculate(e)
                         for ele in d:
                             angle = floor(ele[1])
-                            if (angle >= 0 and angle < 360):
+                            if 0 <= angle < 360:
                                 distdict[angle].append(ele[0])
             except Exception as e:
                 pass
@@ -171,7 +166,6 @@ def read_Lidar():
             angle_data = code(ser)
             plot_lidar(next(angle_data))
 
-
         # Scan End
         values = bytearray([int('a5', 16), int('65', 16)])
         ser.write(values)
@@ -183,9 +177,8 @@ def read_Lidar():
         main()
 
 
-t1 = Thread(target = startyolo, args =(""))
-t2 = Thread(target = read_Lidar, args =(""))
-
+t1 = Thread(target=startyolo, args="")
+t2 = Thread(target=read_Lidar, args="")
 
 t1.start()
 t2.start()
