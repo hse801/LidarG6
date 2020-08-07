@@ -7,7 +7,7 @@ import math
 from math import atan, pi, floor
 import matplotlib.pyplot as plt
 import math
-from YOLO import startyolo
+from yolo import startyolo
 
 dist_i = 0
 anglecheck = 0
@@ -86,10 +86,8 @@ def read_Lidar():
         for i in range(0, 2 * LSN, 2):
             global dist_i
             dist_i = _HexArrToDec((d[8 + i], d[8 + i + 1])) / 4
-            #dist_i = 2
             Angle_i_tmp = ((Angle_diff / float(LSN)) * (i / 2)) + Angle_fsa
 
-            #####3rint(dist_i)
             if Angle_i_tmp > 360:
                 Angle_i = Angle_i_tmp - 360
             elif Angle_i_tmp < 0:
@@ -98,13 +96,8 @@ def read_Lidar():
                 Angle_i = Angle_i_tmp
 
             Angle_i = Angle_i + _AngleCorr(dist_i)
-            # print(Angle_i)
             ddict.append((dist_i, Angle_i))
 
-            # angcheckdone = []
-            # distcheckdone = []
-            #if Angle_i >200:
-                # Angle_i - 100 <= anglecheck + 149 <= Angle_i + 100
             if (Angle_i - 16 <= anglecheck + 149 <= Angle_i + 16) and (134 <= Angle_i <= 234):
                 angcheckdone.append(Angle_i)
                 distcheckdone.append(dist_i)
@@ -114,24 +107,13 @@ def read_Lidar():
             print('Angle check = ', angcheckdone)
             print('Distance check = ', distcheckdone)
 
-            #if (Angle_i - 16 <= anglecheck2 + 149 <= Angle_i + 16) and (134 <= Angle_i <= 234):
-                #angcheckdone2.append(Angle_i)
-                #distcheckdone2.append(dist_i)
-            #else:
-                #angcheckdone2.append(0)
-                #distcheckdone2.append(0)
-            #print('Angle check = ', angcheckdone2)
-            #print('Distance check = ', distcheckdone2)
-
             if i == (LSN - 1) * 2:
-                nonzero_distcheckdone=[float(v) for v in distcheckdone if v > 0]
+                nonzero_distcheckdone = [float(v) for v in distcheckdone if v > 0]
                 nonzero_distcheckdone2 = [float(v2) for v2 in distcheckdone2 if v2 > 0]
 
-                #mean_dist = (dist_sum / len(distcheckdone))
             mean_dist = sum(nonzero_distcheckdone) / len(nonzero_distcheckdone)
             mean_dist2 = sum(nonzero_distcheckdone2) / len(nonzero_distcheckdone2)
             print('Distance Mean = ', mean_dist)
-            #print('Distance Mean2 = ', mean_dist2)
 
             global num
             global num2
@@ -143,14 +125,9 @@ def read_Lidar():
             num_Mean += mean_dist
             num_Mean2 += mean_dist2
             print('num = ', num)
-            #print('num2 = ', num2)
             print('total_mean = ', num_Mean)
-            #print('total_mean2 = ', num_Mean2)
             print('avg_mean =', num_Mean / num)
-            #print('avg_mean2 =', num_Mean2 / num2)
-                #print(len(distcheckdone))
-                #print('LSN = ', LSN)
-            # print('ddict = ', ddict)
+
             return ddict
 
     def _Mean(data):
