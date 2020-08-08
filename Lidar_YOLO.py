@@ -96,9 +96,10 @@ def read_Lidar():
             Angle_i = Angle_i + _AngleCorr(dist_i)
             ddict.append((dist_i, Angle_i))
 
-            if (Angle_i - 16 <= anglecheck + 149 <= Angle_i + 16) and (134 <= Angle_i <= 234):
+            if (Angle_i - 16 <= anglecheck + 149 <= Angle_i + 16) and (144 <= Angle_i <= 224):
+                # (164 <= Angle_i <= 204):
                 angcheckdone.append(Angle_i)
-                distcheckdone.append(dist_i)
+                distcheckdone.append(dist_i*2)
             else:
                 angcheckdone.append(0)
                 distcheckdone.append(0)
