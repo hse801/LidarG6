@@ -212,4 +212,11 @@ t1 = Thread(target=startyolo, args="")
 t2 = Thread(target=read_Lidar(), args="")
 
 t1.start()
+
+anglecheck1 = np.load('personlist.npy')
+anglecheck2 = np.load('bottlelist.npy')
+print(anglecheck1)
+print("\n")
+print(anglecheck2)
+
 t2.start()

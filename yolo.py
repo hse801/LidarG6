@@ -3,8 +3,14 @@ import numpy as np
 import time
 from math import atan
 
+num1 = 0
+num2 = 0
+num3 = 0
+person = np.array([[0.0 for col in range(50)] for row in range(50)])
+bottle = np.array([[0.0 for col in range(50)] for row in range(50)])
 
 def startyolo():
+    global num1
     cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
     cap.set(3, 1920)
     cap.set(4, 1080)
@@ -64,21 +70,40 @@ def startyolo():
                         cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
                         cv2.putText(img, label, (x, y + 30), font, 3, color, 3)
                         if label == "person":
+
+                            global person
+                            global num2
+                            # num1이 사진의 개수, num2가 마지막 사진에서 label이 person인 bounding box 개수
+                            # num3는 마지막 사진에서 label이 bottle인 bounding box 개수
+                            # 배열에 나머지 값은 0이고 조건에 해당될때만 anglecheck 값을 할당
+                            # 배열을 장애물 별로 따로 저장하여 라이다로 넘긴다
+                            # num1 - 1 번째 행만 가져와야함
+
                             if (x + w / 2) <= 960:
-                                anglecheck = 35 - atan(960 - (x + w / 2) / 1371)
+                                person[num1, num2] = 35 - atan(960 - (x + w / 2) / 1371)
                             else:
-                                anglecheck = 35 + atan((x + w / 2) / 1371)
-                            # print('Angle check1: ', anglecheck)
+                                person[num1, num2] = 35 + atan((x + w / 2) / 1371)
+
+                            num2 += 1
+
                         if label == "bottle":
-                            x1 = x
-                            w1 = w
-                            if (x1 + w1 / 2) <= 960:
-                               anglecheck2 = 35-atan(960-(x1 + w1 / 2) / 1371)
+
+                            global bottle
+                            global num3
+
+                            if (x + w / 2) <= 960:
+                                bottle[num1, num3] = 35 - atan(960 - (x + w / 2) / 1371)
                             else:
-                               anglecheck2 = 35+atan((x1 + w1 / 2) / 1371)
-                            # print('Angle check2: ', anglecheck2)
+                                bottle[num1, num3] = 35 + atan((x + w / 2) / 1371)
+
+                            num3 += 1
 
                 cv2.imshow("Image", img)
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
-    return anglecheck, anglecheck2
+                num1 += 1
+
+    # startyolo()
+    np.save('personlist', person)
+    print("\n")
+    np.save('bottlelist', bottle)
