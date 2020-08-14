@@ -63,14 +63,22 @@ def startyolo():
                         color = colors[i]
                         cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
                         cv2.putText(img, label, (x, y + 30), font, 3, color, 3)
-                        if label == 'person':
-                            print("x1 =", x)
-                            print("w1 =", w)
+                        if label == "person":
                             if (x + w / 2) <= 960:
-                                anglecheck = 35-atan(960-(x + w / 2) / 1371)
+                                anglecheck = 35 - atan(960 - (x + w / 2) / 1371)
                             else:
-                                anglecheck = 35+atan((x + w / 2) / 1371)
+                                anglecheck = 35 + atan((x + w / 2) / 1371)
+                            # print('Angle check1: ', anglecheck)
+                        if label == "bottle":
+                            x1 = x
+                            w1 = w
+                            if (x1 + w1 / 2) <= 960:
+                               anglecheck2 = 35-atan(960-(x1 + w1 / 2) / 1371)
+                            else:
+                               anglecheck2 = 35+atan((x1 + w1 / 2) / 1371)
+                            # print('Angle check2: ', anglecheck2)
 
                 cv2.imshow("Image", img)
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
+    return anglecheck, anglecheck2

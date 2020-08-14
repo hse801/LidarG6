@@ -3,15 +3,15 @@ import cv2
 import numpy as np
 import time
 import serial
-import math
 from math import atan, pi, floor
 import matplotlib.pyplot as plt
 import math
-from yolo import startyolo
+from yolo import *
+# from yolo import startyolo
 
 dist_i = 0
-anglecheck = 0
-anglecheck2 = 0
+# anglecheck = 0
+# anglecheck2 = 0
 # dist_sum = 0
 angcheckdone = []
 distcheckdone = []
@@ -24,7 +24,6 @@ num_Mean2 = 0
 
 
 def read_Lidar():
-
     def plot_lidar(distdict):
         x = [0 for i in range(360)]
         y = [0 for i in range(360)]
@@ -68,9 +67,11 @@ def read_Lidar():
             return atan(21.8 * ((155.3 - dist) / (155.3 * dist))) * (180 / pi)
 
     def _Calculate(d):
-        #global dist_sum
+        # global dist_sum
         global anglecheckdone
         global distcheckdone
+        global anglecheckdone2
+        global distcheckdone2
         ddict = []
         LSN = d[1]
         Angle_fsa = ((_HexArrToDec((d[2], d[3])) >> 1) / 64.0)
@@ -84,8 +85,10 @@ def read_Lidar():
         for i in range(0, 2 * LSN, 2):
             global dist_i
             dist_i = _HexArrToDec((d[8 + i], d[8 + i + 1])) / 4
+            # dist_i = 2
             Angle_i_tmp = ((Angle_diff / float(LSN)) * (i / 2)) + Angle_fsa
 
+            #####3rint(dist_i)
             if Angle_i_tmp > 360:
                 Angle_i = Angle_i_tmp - 360
             elif Angle_i_tmp < 0:
@@ -94,23 +97,43 @@ def read_Lidar():
                 Angle_i = Angle_i_tmp
 
             Angle_i = Angle_i + _AngleCorr(dist_i)
+            # print(Angle_i)
             ddict.append((dist_i, Angle_i))
 
-            if (Angle_i - 16 <= anglecheck + 149 <= Angle_i + 16) and (144 <= Angle_i <= 224):
-                # (164 <= Angle_i <= 204):
+            # angcheckdone = []
+            # distcheckdone = []
+            # if Angle_i >200:
+            # Angle_i - 100 <= anglecheck + 149 <= Angle_i + 100
+
+            # print('Angle check1: ', startyolo.anglecheck)
+            # print('Angle check2: ', startyolo.anglecheck2)
+            if (Angle_i - 16 <= startyolo.anglecheck + 149 <= Angle_i + 16) and (134 <= Angle_i <= 234):
+            # +-16의 오차 / +149를 하여 욜로와 라이다의 각도를 맞춰준다
                 angcheckdone.append(Angle_i)
-                distcheckdone.append(dist_i*2)
+                distcheckdone.append(dist_i * 2)
             else:
                 angcheckdone.append(0)
                 distcheckdone.append(0)
             print('Angle check = ', angcheckdone)
             print('Distance check = ', distcheckdone)
+            if (Angle_i - 16 <= startyolo.anglecheck2 + 149 <= Angle_i + 16) and (134 <= Angle_i <= 234):
+                 angcheckdone2.append(Angle_i)
+                 distcheckdone2.append(dist_i * 2)
+            else:
+                 angcheckdone2.append(0)
+                 distcheckdone2.append(0)
+            print('Angle check = ', angcheckdone2)
+            print('Distance check = ', distcheckdone2)
 
             if i == (LSN - 1) * 2:
                 nonzero_distcheckdone = [float(v) for v in distcheckdone if v > 0]
+                nonzero_distcheckdone2 = [float(v) for v in distcheckdone2 if v > 0]
 
+                # mean_dist = (dist_sum / len(distcheckdone))
             mean_dist = sum(nonzero_distcheckdone) / len(nonzero_distcheckdone)
+            mean_dist2 = sum(nonzero_distcheckdone2) / len(nonzero_distcheckdone2)
             print('Distance Mean = ', mean_dist)
+            print('Distance Mean2 = ', mean_dist2)
 
             global num
             global num2
@@ -120,10 +143,16 @@ def read_Lidar():
             num += 1
             num2 += 1
             num_Mean += mean_dist
+            num_Mean2 += mean_dist2
             print('num = ', num)
+            print('num2 = ', num2)
             print('total_mean = ', num_Mean)
+            print('total_mean2 = ', num_Mean2)
             print('avg_mean =', num_Mean / num)
-
+            print('avg_mean2 =', num_Mean2 / num2)
+            # print(len(distcheckdone))
+            # print('LSN = ', LSN)
+            # print('ddict = ', ddict)
             return ddict
 
     def _Mean(data):
@@ -134,8 +163,9 @@ def read_Lidar():
         return 0
 
     def code(ser):
-        data1 = ser.read(6000)
+        data1 = ser.read(4000)
         data2 = data1.split(b"\xaa\x55")[1:-1]
+
         distdict = {}
         for i in range(0, 360):
             distdict.update({i: []})
@@ -179,7 +209,7 @@ def read_Lidar():
 
 
 t1 = Thread(target=startyolo, args="")
-t2 = Thread(target=read_Lidar, args="")
+t2 = Thread(target=read_Lidar(), args="")
 
 t1.start()
 t2.start()
