@@ -18,7 +18,7 @@ distcheckdone = []
 angcheckdone2 = []
 distcheckdone2 = []
 num = 0
-num_Mean = 0
+total_mean = 0
 num2 = 0
 num_Mean2 = 0
 
@@ -137,7 +137,7 @@ def read_Lidar():
 
             global num
             global num2
-            global num_Mean
+            global total_mean
             global num_Mean2
 
             num += 1

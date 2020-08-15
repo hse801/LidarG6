@@ -21,21 +21,18 @@ distcheckdone = []
 
 ACD_sized = np.array([[0.0 for col in range(200)] for row in range(10)])
 DCD_sized = np.array([[0.0 for col in range(200)] for row in range(10)])
-sum_sized = np.array(0 for i in range(10))
+sum_sized = [0 for i in range(10)]
 #angcheckdone2 = []
 #distcheckdone2 = []
 num = 0
-num_Mean = 0
+total_mean = 0
 #num2 = 0
 #num_Mean2 = 0
-
-
 num1 = 0
 num2 = 0
 num3 = 0
 person = np.array([[0.0 for col in range(50)] for row in range(50)])
 bottle = np.array([[0.0 for col in range(50)] for row in range(50)])
-
 
 def startyolo():
     global num1
@@ -217,7 +214,6 @@ def read_Lidar():
 
             for j in range(len(anglecheck) - 1):
                 if (Angle_i - 20 <= anglecheck[j] + 149 <= Angle_i + 20) and (104 <= Angle_i <= 264):
-
                     angcheckdone.append(Angle_i)
                     distcheckdone.append(dist_i)
                     # ACD_sized[j,:] = angcheckdone
@@ -254,10 +250,10 @@ def read_Lidar():
 
         print("min_index = ", min_index)
 
-        Distcheckdone = DCD_sized[min_index, :]
+        distcheckdone_minindex = DCD_sized[min_index] # 인덱스 수정
 
         if i == (LSN - 1) * 2:
-            nonzero_distcheckdone = [float(v) for v in Distcheckdone if v > 0]
+            nonzero_distcheckdone = [float(v) for v in distcheckdone_minindex if v > 0]
             # nonzero_distcheckdone2 = [float(v) for v in distcheckdone2 if v > 0]
 
             # mean_dist = (dist_sum / len(distcheckdone))
@@ -268,18 +264,18 @@ def read_Lidar():
 
         global num
         # global num2
-        global num_Mean
+        global total_mean
         # global num_Mean2
 
         num += 1
         # num2 += 1
-        num_Mean += mean_dist
+        total_mean += mean_dist
         # num_Mean2 += mean_dist2
         print('num = ', num)
         # print('num2 = ', num2)
-        print('total_mean = ', num_Mean)
+        print('total_mean = ', total_mean)
         # print('total_mean2 = ', num_Mean2)
-        print('avg_mean =', num_Mean / num)
+        print('avg_mean =', total_mean / num)
         # print('avg_mean2 =', num_Mean2 / num2)
         # print(len(distcheckdone))
         # print('LSN = ', LSN)
@@ -307,7 +303,7 @@ def read_Lidar():
                         d = _Calculate(e)
                         for ele in d:
                             angle = floor(ele[1])
-                            if (angle >= 0 and angle < 360):
+                            if 0 <= angle < 360:
                                 distdict[angle].append(ele[0])
             except Exception as e:
                 pass
@@ -317,7 +313,7 @@ def read_Lidar():
 
     def main():
         # Open Serial
-        ser = serial.Serial(port='COM9', baudrate=512000)
+        ser = serial.Serial(port='COM13', baudrate=512000)
         ser.isOpen()
 
         # Scan start
@@ -341,7 +337,7 @@ def read_Lidar():
 
 startyolo()
 
-anglecheckf = person[num1 - 1, :]
+angcheck_person_cut = person[num1 - 1, :]
 
 # anglecheckf[anglecheckf.nonzero()]
 
@@ -351,14 +347,12 @@ anglecheckf = person[num1 - 1, :]
 # print("anglecheck")
 # print(anglecheck)
 
-
 # anglecheck4 = np.load('bottlelist2.npy')
 # print(anglecheck)
 # print("\n")
 # print(anglecheck4)
 
-
-anglecheck = anglecheckf[anglecheckf > 0]
+anglecheck = angcheck_person_cut[angcheck_person_cut > 0]
 print("anglecheck")
 print(anglecheck)
 
@@ -374,7 +368,7 @@ print(DCD_sized)
 # t2 = Thread(target=read_Lidar(), args=(""))
 
 # t1.start()
-
 # t2.start()
+
 print("sum_sized=", sum_sized)
 print("sum=", sum(DCD_sized[0]))
