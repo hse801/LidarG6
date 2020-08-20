@@ -7,11 +7,10 @@ import math
 from math import atan, pi, floor
 import matplotlib.pyplot as plt
 import math
+
 #from yolo import startyolo
 #from yolo import *
 #import startyolo.anglecheck
-
-
 dist_i = 0
 #anglecheck = 0
 #anglecheck2 = 0
@@ -20,7 +19,7 @@ angcheckdone = []
 distcheckdone = []
 
 ACD_sized = np.array([[0.0 for col in range(200)] for row in range(10)])
-DCD_sized = np.array([[0.0 for col in range(200)] for row in range(10)])
+DCD_sized = [0 for i in range(10)] #DCD_sized 1차원으로 수정
 sum_sized = [0 for i in range(10)]
 #angcheckdone2 = []
 #distcheckdone2 = []
@@ -105,7 +104,6 @@ def startyolo():
                                 person[num1, num2] = 35 + atan((x + w / 2) / 1371)
 
                             num2 += 1
-
                         # if label == "bottle":
                         #
                         #     global bottle
@@ -122,7 +120,6 @@ def startyolo():
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
                 num1 += 1
-
     np.save('personlist', person)
     # np.save('bottlelist', bottle)
 
@@ -203,6 +200,7 @@ def read_Lidar():
             Angle_i = Angle_i + _AngleCorr(dist_i)
             # print(Angle_i)
             ddict.append((dist_i, Angle_i))
+            print('ddict = ', ddict)
 
             # angcheckdone = []
             # distcheckdone = []
@@ -212,20 +210,19 @@ def read_Lidar():
             # print(anglecheck)
             # print(anglecheck2)
 
-            for j in range(len(anglecheck) - 1):
-                if (Angle_i - 20 <= anglecheck[j] + 149 <= Angle_i + 20) and (104 <= Angle_i <= 264):
+            for j in range(len(anglecheck)):
+                if (Angle_i - 16 <= anglecheck[j] + 149 <= Angle_i + 16) and (134 <= Angle_i <= 234):
                     angcheckdone.append(Angle_i)
-                    distcheckdone.append(dist_i)
                     # ACD_sized[j,:] = angcheckdone
-                    DCD_sized[j][i] = dist_i
+                    distcheckdone.append(dist_i)
+                    DCD_sized[j] = dist_i
                     print("LSN=", LSN)
                     print("i =", i)
                 else:
                     angcheckdone.append(0)
                     distcheckdone.append(0)
-
-                print('Angle check = ', angcheckdone)
-                print('Distance check = ', distcheckdone)
+                print('Angle check done = ', angcheckdone)
+                print('Distance check done= ', distcheckdone)
                 # if (Angle_i - 16 <= anglecheck2 + 149 <= Angle_i + 16) and (134 <= Angle_i <= 234):
                 # angcheckdone2.append(Angle_i)
                 # distcheckdone2.append(dist_i * 2)
@@ -234,53 +231,69 @@ def read_Lidar():
                 # distcheckdone2.append(0)
                 # print('Angle check = ', angcheckdone2)
                 # print('Distance check = ', distcheckdone2)
-
                 # ACD_sized[j, :] = angcheckdone
                 # DCD_sized[j, :] = distcheckdone
 
                 # angcheckdone = []
                 # distcheckdone = []
 
-                # for k in range(len(anglecheck) - 1):
-                global sum_sized
-                sum_sized[j] = sum(DCD_sized[j])
-        # print("sum_sized=",sum_sized)
+            for k in range(len(anglecheck)):
+                sum_sized[k] = sum(DCD_sized[k])
+            print("sum_sized")
+            print(sum_sized)
 
-        min_index = np.argmin(sum_sized)
+            min_index = np.argmin(sum_sized)
 
-        print("min_index = ", min_index)
+            dcd_min_index = DCD_sized[min_index]
 
-        distcheckdone_minindex = DCD_sized[min_index] # 인덱스 수정
-
-        if i == (LSN - 1) * 2:
-            nonzero_distcheckdone = [float(v) for v in distcheckdone_minindex if v > 0]
+            # if i == (LSN - 1) * 2:
+            nonzero_distcheckdone = [float(v) for v in dcd_min_index if v > 0]
             # nonzero_distcheckdone2 = [float(v) for v in distcheckdone2 if v > 0]
+            # global num
+            mean_dist = sum(nonzero_distcheckdone) / len(nonzero_distcheckdone)
+            # mean_dist2 = sum(nonzero_distcheckdone2) / len(nonzero_distcheckdone2)
+            print('Distance Mean = ', mean_dist)
+            # print('Distance Mean2 = ', mean_dist2)
 
-            # mean_dist = (dist_sum / len(distcheckdone))
-        mean_dist = sum(nonzero_distcheckdone) / len(nonzero_distcheckdone)
-        # mean_dist2 = sum(nonzero_distcheckdone2) / len(nonzero_distcheckdone2)
-        print('Distance Mean = ', mean_dist)
-        # print('Distance Mean2 = ', mean_dist2)
-
-        global num
-        # global num2
-        global total_mean
-        # global num_Mean2
-
-        num += 1
-        # num2 += 1
-        total_mean += mean_dist
-        # num_Mean2 += mean_dist2
-        print('num = ', num)
-        # print('num2 = ', num2)
-        print('total_mean = ', total_mean)
-        # print('total_mean2 = ', num_Mean2)
-        print('avg_mean =', total_mean / num)
-        # print('avg_mean2 =', num_Mean2 / num2)
-        # print(len(distcheckdone))
-        # print('LSN = ', LSN)
-        # print('ddict = ', ddict)
         return ddict
+
+            # for k in range(len(anglecheck)): # sum 계산 완료 후 사용 위해 따로 for문 만든다
+            #     sum_sized[k] = sum(DCD_sized[k])
+            # print("sum_sized = ", sum_sized)
+            # min_index = np.argmin(sum_sized)
+            #
+            # dcd_min_index = DCD_sized[min_index]
+            #
+            # # if i == (LSN - 1) * 2:
+            # if i == 0:
+            #     nonzero_distcheckdone = [float(v) for v in dcd_min_index if v > 0]
+            #     # nonzero_distcheckdone2 = [float(v) for v in distcheckdone2 if v > 0]
+            #
+            #     # mean_dist = (dist_sum / len(distcheckdone))
+            # mean_dist = sum(nonzero_distcheckdone) / len(nonzero_distcheckdone)
+            # # mean_dist2 = sum(nonzero_distcheckdone2) / len(nonzero_distcheckdone2)
+            # #print('Distance Mean = ', )
+            # # print('Distance Mean2 = ', mean_dist2)
+            #
+            # global num
+            # # global num2
+            # global total_mean
+            # # global num_Mean2mean_dist
+            #
+            # num += 1 # mean_dist의 개수
+            # # num2 += 1
+            # total_mean += mean_dist
+            # # num_Mean2 += mean_dist2
+            # print('num = ', num)
+            # # print('num2 = ', num2)
+            # print('total_mean = ', total_mean)
+            # # print('total_mean2 = ', num_Mean2)
+            # print('avg_mean =', total_mean / num)
+            # # print('avg_mean2 =', num_Mean2 / num2)
+            # # print(len(distcheckdone))
+            # # print('LSN = ', LSN)
+            # # print('ddict = ', ddict)
+            # return ddict
 
     def _Mean(data):
         length_of_data_without_zero = sum([i != 0 for i in data])
@@ -290,8 +303,8 @@ def read_Lidar():
         return 0
 
     def code(ser):
-        data1 = ser.read(6000)
-        data2 = data1.split(b"\xaa\`x55")[1:-1]
+        data1 = ser.read(4000)
+        data2 = data1.split(b"\xaa\x55")[1:-1]
 
         distdict = {}
         for i in range(0, 360):
@@ -303,7 +316,7 @@ def read_Lidar():
                         d = _Calculate(e)
                         for ele in d:
                             angle = floor(ele[1])
-                            if 0 <= angle < 360:
+                            if (angle >= 0 and angle < 360):
                                 distdict[angle].append(ele[0])
             except Exception as e:
                 pass
@@ -334,41 +347,27 @@ def read_Lidar():
     if __name__ == '__main__':
         main()
 
-
 startyolo()
 
 angcheck_person_cut = person[num1 - 1, :]
-
 # anglecheckf[anglecheckf.nonzero()]
-
 # print(anglecheckf)
 
-
-# print("anglecheck")
-# print(anglecheck)
+anglecheck = angcheck_person_cut[angcheck_person_cut > 0]
+print("anglecheck = ", anglecheck)
 
 # anglecheck4 = np.load('bottlelist2.npy')
 # print(anglecheck)
 # print("\n")
 # print(anglecheck4)
 
-anglecheck = angcheck_person_cut[angcheck_person_cut > 0]
-print("anglecheck")
-print(anglecheck)
-
 read_Lidar()
-
-# print(sum_sized)
-
-print(np.argmin(sum_sized))
-
-print(DCD_sized)
+print("np.argmin(sum_sized) = ", np.argmin(sum_sized))
+print("DCD_sized = ", DCD_sized)
 
 # t1 = Thread(target=startyolo, args=(""))
 # t2 = Thread(target=read_Lidar(), args=(""))
 
 # t1.start()
-# t2.start()
 
-print("sum_sized=", sum_sized)
-print("sum=", sum(DCD_sized[0]))
+# t2.start()
