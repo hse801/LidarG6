@@ -18,6 +18,10 @@ num3 = 0
 obj1_yolo_angle = np.array([[0.0 for col in range(50)] for row in range(50)])
 obj2_yolo_angle = np.array([[0.0 for col in range(50)] for row in range(50)])
 
+obj1_exist = 0
+obj2_exist = 0
+
+
 def startyolo():
     global num1
     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
@@ -88,16 +92,20 @@ def startyolo():
                         if label == "person":
                             global obj1_yolo_angle
                             global num2
+                            global obj1_exist
 
                             if (x + w / 2) <= 960:
                                 obj1_yolo_angle[num1, num2] = 35 - math.degrees(atan((960 - (x + w / 2)) / 1371))
+                                # atan의 결과로 나온 라디안 값은 degree로 변환
                             else:
                                 obj1_yolo_angle[num1, num2] = 35 + math.degrees(atan((x + w / 2) / 1371))
 
                             num2 += 1
+                            obj1_exist = 1
                         if label == "bottle":
                             global obj2_yolo_angle
                             global num3
+                            global obj2_exist
 
                             if (x + w / 2) <= 960:
                                 obj2_yolo_angle[num1, num3] = 35 - math.degrees(atan((960 - (x + w / 2)) / 1371))
@@ -105,10 +113,13 @@ def startyolo():
                                 obj2_yolo_angle[num1, num3] = 35 + math.degrees(atan((x + w / 2) / 1371))
 
                             num3 += 1
+                            obj2_exist = 1
+
                 cv2.imshow("Image", img)
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
                 num1 += 1
+
 
 def read_Lidar():
     def plot_lidar(distdict):
@@ -159,8 +170,6 @@ def read_Lidar():
         global angle
         finaldist = []
 
-        # global angcheckdone2
-        # global distcheckdone2
         global ddict
         LSN = d[1]
         Angle_fsa = ((_HexArrToDec((d[2], d[3])) >> 1) / 64.0)
@@ -230,7 +239,7 @@ def read_Lidar():
 
     def main():
         # Open Serial
-        ser = serial.Serial(port='COM13', baudrate=512000)
+        ser = serial.Serial(port='COM3', baudrate=512000)
         ser.isOpen()
 
         # Scan start
@@ -252,88 +261,97 @@ def read_Lidar():
         main()
 
 
-startyolo()
+startyolo()  # yolo 실행
 
-anglecheck_person = obj1_yolo_angle[num1 - 1, :]
-anglecheck_bottle = obj2_yolo_angle[num1 - 1, :]
-anglecheck1 = anglecheck_person[anglecheck_person > 0]
-anglecheck2 = anglecheck_bottle[anglecheck_bottle > 0]
+anglecheck_obj1 = obj1_yolo_angle[num1 - 1, :]
+anglecheck_obj2 = obj2_yolo_angle[num1 - 1, :]
+
+anglecheck1 = anglecheck_obj1[anglecheck_obj1 > 0]
+anglecheck2 = anglecheck_obj2[anglecheck_obj2 > 0]
+
 print("anglecheck1 = ", anglecheck1)
 print("anglecheck2 = ", anglecheck2)
 
-read_Lidar()
+read_Lidar()  # 라이다 실행
 
-finaldist = dist
+finaldist = dist  # distance와 angle 새로운 변수에 저장
 finalangle = angle
 print("finaldist = ", finaldist)
 
 
 def obstacle():
-    anglecheckdone1 = [] # 배열
+    global obj1_exist
+    global obj2_exist
+
+    anglecheckdone1 = []  # 배열
     anglecheckdone2 = []
     distcheckdone1 = []
     distcheckdone2 = []
     nonzero_DCD1 = []
     nonzero_DCD2 = []
-    sumDCD1 = [] # 리스트(1개의 행)
+    sumDCD1 = []  # 리스트(1개의 행)
     sumDCD2 = []
 
     # person
-    for k in range(len(anglecheck1)):
-        # https://dojang.io/mod/page/view.php?id=2291
-        anglecheckdone1.append([])
-        distcheckdone1.append([])
-        nonzero_DCD1.append([])
-        for j in range(len(finalangle)):
-            if (finalangle[j] - 5 <= anglecheck1[k] + 149 <= finalangle[j] + 5) and (134 <= finalangle[j] <= 234):
-                anglecheckdone1[k].append(finalangle[j])
-                distcheckdone1[k].append(finaldist[j])
-            else:
-                anglecheckdone1[k].append(0)
-                distcheckdone1[k].append(0)
+    if obj1_exist == 1:
+        for k in range(len(anglecheck1)):
+            # https://dojang.io/mod/page/view.php?id=2291
+            anglecheckdone1.append([])
+            distcheckdone1.append([])
+            nonzero_DCD1.append([])
+            for j in range(len(finalangle)):
+                if (finalangle[j] - 5 <= anglecheck1[k] + 149 <= finalangle[j] + 5) and (134 <= finalangle[j] <= 234):
+                    anglecheckdone1[k].append(finalangle[j])
+                    distcheckdone1[k].append(finaldist[j])
+                else:
+                    anglecheckdone1[k].append(0)
+                    distcheckdone1[k].append(0)
 
-        nonzero_DCD1[k] = [float(v) for v in distcheckdone1[k] if v > 0]
-        sumDCD1.append(sum(nonzero_DCD1[k]))
+            nonzero_DCD1[k] = [float(v) for v in distcheckdone1[k] if v > 0]
+            sumDCD1.append(sum(nonzero_DCD1[k]))
 
-    print("distcheckdone1 = ", distcheckdone1)
-    print("nonzero_DCD1 = ", nonzero_DCD1)
-    print("sumDCD1 = ", sumDCD1)
+        print("distcheckdone1 = ", distcheckdone1)
+        print("nonzero_DCD1 = ", nonzero_DCD1)
+        print("sumDCD1 = ", sumDCD1)
 
-    avgdist1 = min(sumDCD1) / len(nonzero_DCD1[sumDCD1.index(min(sumDCD1))])
-    print(nonzero_DCD1[sumDCD1.index(min(sumDCD1))])
+        avgdist1 = min(sumDCD1) / len(nonzero_DCD1[sumDCD1.index(min(sumDCD1))])
+        print(nonzero_DCD1[sumDCD1.index(min(sumDCD1))])
 
     # bottle
-    for k in range(len(anglecheck2)):
-        # https://dojang.io/mod/page/view.php?id=2291
-        anglecheckdone2.append([])
-        distcheckdone2.append([])
-        nonzero_DCD2.append([])
-        for j in range(len(finalangle)):
-            if (finalangle[j] - 5 <= anglecheck2[k] + 149 <= finalangle[j] + 5) and (134 <= finalangle[j] <= 234):
-                anglecheckdone2[k].append(finalangle[j])
-                distcheckdone2[k].append(finaldist[j])
+    if obj2_exist == 1:
+        for k in range(len(anglecheck2)):
+            # https://dojang.io/mod/page/view.php?id=2291
+            anglecheckdone2.append([])
+            distcheckdone2.append([])
+            nonzero_DCD2.append([])
+            for j in range(len(finalangle)):
+                if (finalangle[j] - 5 <= anglecheck2[k] + 149 <= finalangle[j] + 5) and (134 <= finalangle[j] <= 234):
+                    anglecheckdone2[k].append(finalangle[j])
+                    distcheckdone2[k].append(finaldist[j])
 
-            else:
-                anglecheckdone2[k].append(0)
-                distcheckdone2[k].append(0)
+                else:
+                    anglecheckdone2[k].append(0)
+                    distcheckdone2[k].append(0)
 
-        nonzero_DCD2[k] = [float(v) for v in distcheckdone2[k] if v > 0]
-        sumDCD2.append(sum(nonzero_DCD2[k]))
+            nonzero_DCD2[k] = [float(v) for v in distcheckdone2[k] if v > 0]
+            sumDCD2.append(sum(nonzero_DCD2[k]))
 
-    print("distcheckdone2 = ", distcheckdone2)
-    # print(distcheckdone[0])
-    # print(distcheckdone[1])
-    print("nonzero_DCD2 = ", nonzero_DCD2)
-    # print(nonzero_DCD[0])
-    # print(nonzero_DCD[1])
-    print("sumDCD2 = ", sumDCD2)
+        print("distcheckdone2 = ", distcheckdone2)
+        # print(distcheckdone[0])
+        # print(distcheckdone[1])
+        print("nonzero_DCD2 = ", nonzero_DCD2)
+        # print(nonzero_DCD[0])
+        # print(nonzero_DCD[1])
+        print("sumDCD2 = ", sumDCD2)
 
-    avgdist2 = min(sumDCD2) / len(nonzero_DCD2[sumDCD2.index(min(sumDCD2))])
-    print(nonzero_DCD2[sumDCD2.index(min(sumDCD2))])
+        avgdist2 = min(sumDCD2) / len(nonzero_DCD2[sumDCD2.index(min(sumDCD2))])
+        print(nonzero_DCD2[sumDCD2.index(min(sumDCD2))])
 
     # 최종결과
-    print("avgdist_person = ", avgdist1)
-    print("avgdist_bottle = ", avgdist2)
+    if obj1_exist == 1:
+        print("avgdist_person = ", avgdist1)
+    if obj2_exist == 1:
+        print("avgdist_bottle = ", avgdist2)
 
 
 obstacle()
