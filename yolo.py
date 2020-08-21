@@ -6,8 +6,8 @@ from math import atan
 num1 = 0
 num2 = 0
 num3 = 0
-person = np.array([[0.0 for col in range(50)] for row in range(50)])
-bottle = np.array([[0.0 for col in range(50)] for row in range(50)])
+obj1_yolo_angle = np.array([[0.0 for col in range(50)] for row in range(50)])
+obj2_yolo_angle = np.array([[0.0 for col in range(50)] for row in range(50)])
 
 def startyolo():
     global num1
@@ -71,7 +71,7 @@ def startyolo():
                         cv2.putText(img, label, (x, y + 30), font, 3, color, 3)
                         if label == "person":
 
-                            global person
+                            global obj1_yolo_angle
                             global num2
                             # num1이 사진의 개수, num2가 마지막 사진에서 label이 person인 bounding box 개수
                             # num3는 마지막 사진에서 label이 bottle인 bounding box 개수
@@ -88,7 +88,7 @@ def startyolo():
 
                         if label == "bottle":
 
-                            global bottle
+                            global obj2_yolo_angle
                             global num3
 
                             if (x + w / 2) <= 960:
